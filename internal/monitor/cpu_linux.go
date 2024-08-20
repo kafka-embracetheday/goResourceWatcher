@@ -4,12 +4,12 @@
 package monitor
 
 import (
-	"fmt"
-	"github.com/kafka-embracetheday/goResourceWatcher/internal/logger"
-	"io/ioutil"
+	"os"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/kafka-embracetheday/goResourceWatcher/internal/logger"
 )
 
 var log = logger.GetLogger()
@@ -30,7 +30,7 @@ func (c *CPUUsage) getCPUUsage() (float64, error) {
 		log.Errorf("get linux system time error:%s", err)
 		return 0, err
 	}
-	fmt.Printf("user1:%d; user2%d:", user1, user2)
+
 	totalIdle := float64(idle2 - idle1)
 	totalKernel := float64(kernel2 - kernel1)
 	totalUser := float64(user2 - user1)
@@ -38,20 +38,18 @@ func (c *CPUUsage) getCPUUsage() (float64, error) {
 	totalSoftIrq := float64(softirq2 - softirq1)
 	totalSteal := float64(steal2 - steal1)
 
-	total := totalKernel + totalUser + totalIrq + totalSoftIrq + totalSteal
+	total := totalKernel + totalUser + totalIrq + totalSoftIrq + totalSteal + totalIdle
 	used := total - totalIdle
-	fmt.Printf("idle1: %d, kernel1: %d, user1: %d, irq1: %d, softirq1: %d, steal1: %d\n", idle1, kernel1, user1, irq1, softirq1, steal1)
-	fmt.Printf("idle2: %d, kernel2: %d, user2: %d, irq2: %d, softirq2: %d, steal2: %d\n", idle2, kernel2, user2, irq2, softirq2, steal2)
-	fmt.Printf("total:%d; used:%d\n", total, used)
+
 	if total == 0 {
-		return 0, nil // 或者返回一个错误
+		return 0, nil
 	}
 
 	return (used / total) * 100, nil
 }
 
 func (c *CPUUsage) getSystemTimes() (idle, kernel, user, irq, softirq, steal uint64, err error) {
-	data, err := ioutil.ReadFile("/proc/stat")
+	data, err := os.ReadFile("/proc/stat")
 	if err != nil {
 		log.Errorf("read file /proc/stat error:%s", err)
 		return 0, 0, 0, 0, 0, 0, err

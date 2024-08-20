@@ -9,8 +9,7 @@ type CPUMonitor struct {
 }
 
 func NewCPUMonitor() *CPUMonitor {
-	var strategy CPUMonitorStrategy
-	strategy = &CPUUsage{}
+	var strategy CPUMonitorStrategy = &CPUUsage{}
 	return &CPUMonitor{strategy: strategy}
 }
 
