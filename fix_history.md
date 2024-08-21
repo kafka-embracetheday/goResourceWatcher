@@ -4,14 +4,24 @@
 <span style="color:red; font-size: 13px; font-weight: bold">遗留问题的优先级按顺序排列，优先级高的优先解决</span>
 
 
+#### 2024.08.21
+- 解决问题：
+    - 定义全局logger实例
+    - 添加了docs模块以及历史修订记录
+    - 新增task模块，可添加、暂停、回复、删除任务
+    - 新增mysql模块，将task信息写入mysql
+- 遗留问题：
+    - cpu模块未加入到task模块的使用
+    - memory、disk等模块的指标获取
+    - notifer模块的告警以及信息发送
+
 
 #### 2024.08.20
-产生过大的指标的问题
 - 解决问题：
     - cpu指标的获取
     - disk、task等模块的初始化
     - 添加了linux和windows系统获取cpu使用率的功能;添加docs模块以及历史修订记录
-    - 修复了 internal/monitor/cpu_linux.go 在linux系统中获取cpu使用率
+    - 修复了 internal/monitor/cpu_linux.go 在linux系统中获取cpu使用率产生过大的指标的问题
 - 遗留问题：
     - log需要调用logger.GetLogger()来获取logger实例，需要定义一个全局的logger实例
     - memory、disk等模块的指标获取

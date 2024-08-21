@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
@@ -28,6 +29,19 @@ type Config struct {
 		Level string `mapstructure:"level"`
 		Path  string `mapstructure:"path"`
 	} `mapstructure:"logger"`
+
+	Mysql struct {
+		Host     string `mapstructure:"host"`
+		Port     int    `mapstructure:"port"`
+		Database string `mapstructure:"database"`
+		User     string `mapstructure:"user"`
+		Pass     string `mapstructure:"pass"`
+	}
+}
+
+func (c *Config) Dsn() string {
+	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local",
+		c.Mysql.User, c.Mysql.Pass, c.Mysql.Host, c.Mysql.Port, c.Mysql.Database)
 }
 
 func GetConfig() *Config {

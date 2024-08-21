@@ -12,14 +12,12 @@ import (
 	"github.com/kafka-embracetheday/goResourceWatcher/internal/logger"
 )
 
-var log = logger.GetLogger()
-
 type CPUUsage struct{}
 
 func (c *CPUUsage) getCPUUsage() (float64, error) {
 	idle1, kernel1, user1, irq1, softirq1, steal1, err := c.getSystemTimes()
 	if err != nil {
-		log.Errorf("get linux system time error:%s", err)
+		logger.Logger.Errorf("get linux system time error:%s", err)
 		return 0, err
 	}
 
@@ -27,7 +25,7 @@ func (c *CPUUsage) getCPUUsage() (float64, error) {
 
 	idle2, kernel2, user2, irq2, softirq2, steal2, err := c.getSystemTimes()
 	if err != nil {
-		log.Errorf("get linux system time error:%s", err)
+		logger.Logger.Errorf("get linux system time error:%s", err)
 		return 0, err
 	}
 
@@ -51,7 +49,7 @@ func (c *CPUUsage) getCPUUsage() (float64, error) {
 func (c *CPUUsage) getSystemTimes() (idle, kernel, user, irq, softirq, steal uint64, err error) {
 	data, err := os.ReadFile("/proc/stat")
 	if err != nil {
-		log.Errorf("read file /proc/stat error:%s", err)
+		logger.Logger.Errorf("read file /proc/stat error:%s", err)
 		return 0, 0, 0, 0, 0, 0, err
 	}
 
@@ -68,49 +66,49 @@ func (c *CPUUsage) getSystemTimes() (idle, kernel, user, irq, softirq, steal uin
 	// 用户态时间包括user、nice，分别是用户态CPU时间、低优先级用户态CPU时间（进程nice值为1-19）
 	user, err = strconv.ParseUint(fields[1], 10, 64)
 	if err != nil {
-		log.Errorf("Error Obtaining cpu user mode usage time:%s", err)
+		logger.Logger.Errorf("Error Obtaining cpu user mode usage time:%s", err)
 		return 0, 0, 0, 0, 0, 0, err
 	}
 	nice, err := strconv.ParseUint(fields[2], 10, 64)
 	if err != nil {
-		log.Errorf("Error Obtaining cpu nice mode usage time:%s", err)
+		logger.Logger.Errorf("Error Obtaining cpu nice mode usage time:%s", err)
 		return 0, 0, 0, 0, 0, 0, err
 	}
 	user += nice
 	// 内核态执行时间
 	kernel, err = strconv.ParseUint(fields[3], 10, 64)
 	if err != nil {
-		log.Errorf("Error Obtaining cpu kernel mode usage time:%s", err)
+		logger.Logger.Errorf("Error Obtaining cpu kernel mode usage time:%s", err)
 		return 0, 0, 0, 0, 0, 0, err
 	}
 	// CPU闲置时间包括idle和iowait，分别是CPU空闲时间、等待I/O操作完成时CPU的空闲时间
 	idle, err = strconv.ParseUint(fields[4], 10, 64)
 	if err != nil {
-		log.Errorf("Error Obtaining cpu idle mode usage time:%s", err)
+		logger.Logger.Errorf("Error Obtaining cpu idle mode usage time:%s", err)
 		return 0, 0, 0, 0, 0, 0, err
 	}
 	iowait, err := strconv.ParseUint(fields[5], 10, 64)
 	if err != nil {
-		log.Errorf("Error Obtaining cpu iowait mode usage time:%s", err)
+		logger.Logger.Errorf("Error Obtaining cpu iowait mode usage time:%s", err)
 		return 0, 0, 0, 0, 0, 0, err
 	}
 	idle += iowait
 	// 硬中断CPU时间
 	irq, err = strconv.ParseUint(fields[6], 10, 64)
 	if err != nil {
-		log.Errorf("Error Obtaining cpu irq mode usage time:%s", err)
+		logger.Logger.Errorf("Error Obtaining cpu irq mode usage time:%s", err)
 		return 0, 0, 0, 0, 0, 0, err
 	}
 	// 软中断CPU时间
 	softirq, err = strconv.ParseUint(fields[7], 10, 64)
 	if err != nil {
-		log.Errorf("Error Obtaining cpu softirq mode usage time:%s", err)
+		logger.Logger.Errorf("Error Obtaining cpu softirq mode usage time:%s", err)
 		return 0, 0, 0, 0, 0, 0, err
 	}
 	// 被系统监控程序使用的CPU时间
 	steal, err = strconv.ParseUint(fields[8], 10, 64)
 	if err != nil {
-		log.Errorf("Error Obtaining cpu steal mode usage time:%s", err)
+		logger.Logger.Errorf("Error Obtaining cpu steal mode usage time:%s", err)
 		return 0, 0, 0, 0, 0, 0, err
 	}
 

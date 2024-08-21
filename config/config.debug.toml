@@ -6,3 +6,10 @@ version = "0.1"
 # trace debug info warn error fatal panic
 level = "debug"
 path = "./log"
+
+[mysql]
+host = "121.43.161.38"
+port = 3306
+user = "root"
+pass = "kafka"
+database = "go_watcher"

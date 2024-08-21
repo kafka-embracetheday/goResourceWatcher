@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"runtime"
 	"time"
 )
 
@@ -22,9 +21,7 @@ type LogEntry struct {
 	Time  string `json:"time"`
 	Level string `json:"level"`
 	Msg   string `json:"msg"`
-	File  string `json:"file"`
-	Line  int    `json:"line"`
-	Func  string `json:"func"`
+	// Caller logrus.Caller `json:"caller"`
 }
 
 func InitLogger() {
@@ -42,7 +39,7 @@ func InitLogger() {
 	Logger.SetLevel(level)
 	Logger.SetFormatter(&CustomJSONFormatter{
 		TimestampFormat: time.RFC3339,
-		EnableColors:    true,
+		EnableColors:    false,
 	})
 
 	// 创建 log 目录如果不存在
@@ -71,24 +68,19 @@ type CustomJSONFormatter struct {
 }
 
 func (f *CustomJSONFormatter) Format(entry *logrus.Entry) ([]byte, error) {
-	// 获取调用者信息
-	_, file, line, ok := runtime.Caller(7)
-	if ok {
-		file = filepath.Base(file)
-	}
 
 	level := entry.Level.String()
 	if f.EnableColors {
 		level = getColoredLevel(level)
 	}
 
+	level = fmt.Sprintf("[%s]", level)
+	message := fmt.Sprintf("[%s]", entry.Message)
+
 	logEntry := LogEntry{
 		Time:  entry.Time.Format(f.TimestampFormat),
-		Level: entry.Level.String(),
-		Msg:   entry.Message,
-		File:  file,
-		Line:  line,
-		Func:  getFunctionName(entry),
+		Level: level,
+		Msg:   message,
 	}
 
 	data, err := json.Marshal(logEntry)
@@ -97,14 +89,6 @@ func (f *CustomJSONFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	}
 
 	return append(data, '\n'), nil
-}
-
-// 获取函数名
-func getFunctionName(entry *logrus.Entry) string {
-	if pc, _, _, ok := runtime.Caller(8); ok {
-		return runtime.FuncForPC(pc).Name()
-	}
-	return ""
 }
 
 func getColoredLevel(level string) string {

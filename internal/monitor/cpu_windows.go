@@ -11,15 +11,13 @@ import (
 	"github.com/kafka-embracetheday/goResourceWatcher/internal/logger"
 )
 
-var log = logger.GetLogger()
-
 type CPUUsage struct {
 }
 
 func (c *CPUUsage) getCPUUsage() (float64, error) {
 	idle1, kernel1, user1, err := c.getSystemTimes()
 	if err != nil {
-		log.Errorf("get windows system time error:%s", err)
+		logger.Logger.Errorf("get windows system time error:%s", err)
 		return 0, err
 	}
 
@@ -27,7 +25,7 @@ func (c *CPUUsage) getCPUUsage() (float64, error) {
 
 	idle2, kernel2, user2, err := c.getSystemTimes()
 	if err != nil {
-		log.Errorf("get windows system time error:%s", err)
+		logger.Logger.Errorf("get windows system time error:%s", err)
 		return 0, err
 	}
 
@@ -53,7 +51,7 @@ func (c *CPUUsage) getSystemTimes() (idle, kernel, user uint64, err error) {
 		uintptr(unsafe.Pointer(&userTime)),
 	)
 	if ret == 0 {
-		log.Infof("don't get windows system times")
+		logger.Logger.Infof("don't get windows system times")
 		return 0, 0, 0, err
 	}
 
