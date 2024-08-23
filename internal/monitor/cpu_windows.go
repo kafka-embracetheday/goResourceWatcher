@@ -4,6 +4,10 @@
 package monitor
 
 import (
+	"context"
+	"fmt"
+	"github.com/kafka-embracetheday/goResourceWatcher/internal/alarm"
+	"sync"
 	"syscall"
 	"time"
 	"unsafe"
@@ -12,6 +16,39 @@ import (
 )
 
 type CPUUsage struct {
+	Alarm *alarm.Alarm
+}
+
+func NewCPUUsage(alarm *alarm.Alarm) *CPUUsage {
+	return &CPUUsage{Alarm: alarm}
+}
+
+func (c *CPUUsage) monitor(ctx context.Context, pause *sync.Cond, isPaused *bool) {
+	for {
+		select {
+		case <-ctx.Done():
+			fmt.Println("任务结束")
+			return
+		default:
+			pause.L.Lock()
+			for *isPaused {
+				pause.Wait() // 等待被唤醒
+			}
+			pause.L.Unlock()
+
+			// 执行任务逻辑
+			usage, err := c.getCPUUsage()
+			if err != nil {
+				fmt.Println("get cpu usage error:", err)
+				return
+			}
+			fmt.Printf("cpu usage: %.2f%%\n", usage)
+			if usage > 30.0 {
+				c.Alarm.NotifyObservers(fmt.Sprintf("cpu usage is too high: %.2f%%", usage))
+			}
+			time.Sleep(100 * time.Millisecond)
+		}
+	}
 }
 
 func (c *CPUUsage) getCPUUsage() (float64, error) {

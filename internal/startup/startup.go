@@ -3,7 +3,9 @@ package startup
 import (
 	"fmt"
 	"github.com/kafka-embracetheday/goResourceWatcher/config"
+	"github.com/kafka-embracetheday/goResourceWatcher/internal/alarm"
 	"github.com/kafka-embracetheday/goResourceWatcher/internal/logger"
+	"github.com/kafka-embracetheday/goResourceWatcher/internal/monitor"
 	"github.com/kafka-embracetheday/goResourceWatcher/internal/mysql"
 	"github.com/kafka-embracetheday/goResourceWatcher/internal/task"
 	"os/signal"
@@ -25,6 +27,17 @@ func (s *Server) StartUp() {
 	mysql.InitMysql()
 	// init task entry
 	task.AutoMigrateTaskEntity()
+	// init taskQueue
+	taskQueue := task.NewTaskQueue()
+	// init alarm
+	newAlarm := alarm.NewAlarm()
+	emailNotifier := alarm.EmailNotifier{Recipient: "majunhong@gmail.com"}
+	logNotifier := alarm.LogNotifier{}
+	newAlarm.RegisterObservers(&emailNotifier, &logNotifier)
+	// init cpu monitor
+	cpuMonitor := monitor.NewCPUMonitor(monitor.NewCPUUsage(newAlarm))
+
+	taskQueue.AddTask("CPU usage monitor", cpuMonitor.GetCPUUsage)
 
 	env := os.Getenv("APP_ENV")
 	goos := runtime.GOOS
