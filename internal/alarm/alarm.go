@@ -5,6 +5,8 @@ import (
 	"github.com/kafka-embracetheday/goResourceWatcher/internal/logger"
 )
 
+// todo 具体的告警
+
 // Observer
 type Observer interface {
 	Notify(message string)
