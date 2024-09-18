@@ -16,7 +16,8 @@ Watcher is active
 func main() {
 	server := startup.Server{}
 	server.StartUp()
-
+	server.HandleSignal()
 	fmt.Print(watcher)
+
 	select {}
 }

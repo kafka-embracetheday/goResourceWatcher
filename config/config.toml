@@ -6,3 +6,10 @@ version = "0.1"
 # trace debug info warn error fatal panic
 level = "debug"
 path = "./log"
+
+[mysql]
+host = ""
+port = 3306
+user = ""
+pass = ""
+database = ""

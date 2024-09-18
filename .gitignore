@@ -19,3 +19,5 @@
 
 /.idea/
 /log/
+main
+config/config.debug.toml
